@@ -22,52 +22,74 @@ class App < Sinatra::Base
 
    end
 
-
+   # Returns the current songs in the playlist (queue)
+   #
+   # @return [String] JSON
    get '/' do
       songs_to_hash(@mpd.queue).to_json
    end
 
+   # Clears the current playlist
    get '/clear' do
       @mpd.clear
    end
 
-
+   # Returns the current state of the music server
+   #
+   # @return [String] JSON
    get '/status' do
       @mpd.status.to_json
    end
 
+   # Change currently playing song to the next one in the playlist
    get '/next' do
       @mpd.next
    end
 
+   # Change currently playing song to the previous one in the playlist
    get '/previous' do
       @mpd.previous
    end
-   
+  
+   # Play the current song in the playlist 
    get '/play' do
       @mpd.play
    end
 
+   # Play song in the playlist having the specified id
    get '/play/:id' do
       @mpd.play params[:id]
    end
 
+   # Remove a song from the playlist having the specified id
    get '/delete/:id' do
       @mpd.delete params[:id]
    end
 
+   # Get the available artists of the songs
+   #
+   # @return [String] JSON
    get '/artists' do
       @mpd.list(:artist).to_json
    end
 
+   # Get the available genres of the songs
+   # 
+   # @return [String] JSON
    get '/genres' do
       @mpd.list(:genre).to_json
    end 
 
+   # Get the songs having any tags matching the query
+   #
+   # @return [String] JSON
    get '/search/any/:query' do 
       songs_to_hash(@mpd.where({any: params[:query]})).to_json
    end
-   
+  
+   # Get the songs where artist matches the query
+   #
+   # @return [String] JSON 
    get '/search/artist/:query' do
       
       songs_to_hash(@mpd.where(
@@ -77,6 +99,9 @@ class App < Sinatra::Base
       })).to_json
    end
 
+   # Get the songs where genre matches the query
+   #
+   # @return [String] JSON
    get '/search/genre/:query' do
 
       songs_to_hash(@mpd.where(
@@ -86,18 +111,26 @@ class App < Sinatra::Base
       })).to_json
    end
 
+   # Get the songs where title matches the query
+   #
+   # @return [String] JSON
    get '/search/title/:query' do
       songs_to_hash(@mpd.where({title: params[:query]})).to_json
    end
   
+   # Get the songs where album matches the query
+   #
+   # @return [String] JSON
    get '/search/album/:query' do
       songs_to_hash(@mpd.where({album: params[:query]})).to_json
    end
 
+   # Add songs to the playlist where any tag matches the query
    get '/add/any/:query' do
       @mpd.where({any: params[:query]}, {add: true})
    end
 
+   # Add songs to the playlist where artist matches the query
    get '/add/artist/:query' do
       @mpd.where(
          { artist: params[:query].gsub('<s>', '/') 
@@ -107,14 +140,17 @@ class App < Sinatra::Base
          })
    end
    
+   # Add songs to the playlist where title matches the query
    get '/add/title/:query' do
       @mpd.where({title: params[:query]}, {add: true})
    end
 
+   # Add songs to the playlist where album matches the query
    get '/add/album/:query' do
       @mpd.where({album: params[:query]}, {add: true})
    end
 
+   # Add songs to the playlist where genre matches the query
    get '/add/genre/:query' do
       @mpd.where(
       { genre: params[:query].gsub('<s>', '/')
