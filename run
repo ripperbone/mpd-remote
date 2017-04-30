@@ -1,0 +1,2 @@
+#!/bin/bash
+rerun 'rackup -o 0.0.0.0 -p 8003'
