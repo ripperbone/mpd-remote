@@ -1,10 +1,17 @@
 #!/bin/bash
-echo "Generate the documentation"
-yardoc --plugin yard-sinatra app.rb
-DOCS=/home/webdev/public_html/docs/mpd-remote
-if [ -d doc ] && [ -d ${DOCS} ]; then
-   cp -rv doc ${DOCS}
-fi
+
+pushd `dirname ${BASH_SOURCE[0]}`
+
+#echo "Generate the documentation"
+#yardoc --plugin yard-sinatra app.rb
+#DOCS=/home/webdev/public_html/docs/mpd-remote
+#if [ -d doc ] && [ -d ${DOCS} ]; then
+#   cp -rv doc ${DOCS}
+#fi
 
 echo "OK now start the server"
-rerun 'rackup -o 0.0.0.0 -p 8003'
+rackup -o 0.0.0.0 -p 8003
+
+#echo "Start in development mode!"
+#rerun 'rackup -o 0.0.0.0 -p 8003'
+popd

@@ -38,7 +38,13 @@ class App < Sinatra::Base
    #
    # @return [String] JSON
    get '/status' do
-      @mpd.status.to_json
+      statusHash = @mpd.status
+      puts statusHash[:song]
+      # replace song id with the complete song details
+      statusHash[:song] = songs_to_hash(@mpd.queue).reject { |song| song[:id] != statusHash[:song] }.first
+
+      statusHash.to_json
+      
    end
 
    # Change currently playing song to the next one in the playlist
