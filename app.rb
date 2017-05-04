@@ -76,8 +76,14 @@ class App < Sinatra::Base
    #
    # @return [String] JSON
    get '/artists' do
-      @mpd.list(:artist).to_json
+      if params[:limit].nil?
+         @mpd.list(:artist).to_json
+      else
+         @mpd.list(:artist).sample(params[:limit].to_i).to_json
+      end
    end
+
+   
 
    # Get the available genres of the songs
    # 
@@ -85,6 +91,7 @@ class App < Sinatra::Base
    get '/genres' do
       @mpd.list(:genre).to_json
    end 
+
 
    # Get the songs having any tags matching the query
    #
@@ -145,7 +152,7 @@ class App < Sinatra::Base
            strict: ( params[:strict] == 'yes' ? true : false) 
          })
    end
-   
+
    # Add songs to the playlist where title matches the query
    get '/add/title/:query' do
       @mpd.where({title: params[:query]}, {add: true})
