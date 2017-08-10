@@ -74,13 +74,21 @@ class App < Sinatra::Base
 
    # Play song in the playlist having the specified id
    get '/play/:id' do
-      @mpd.play params[:id]
+      begin 
+         @mpd.play params[:id]
+      rescue MPD::ServerArgumentError => ex
+         halt 400, ex.to_json
+      end 
       get_status.to_json
    end
 
    # Remove a song from the playlist having the specified id
    get '/delete/:id' do
-      @mpd.delete params[:id]
+      begin 
+         @mpd.delete params[:id]
+      rescue MPD::ServerArgumentError => ex
+         halt 400, ex.to_json
+      end
       get_status.to_json
    end
 
