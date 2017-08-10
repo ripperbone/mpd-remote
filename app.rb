@@ -6,6 +6,11 @@ require 'json'
 
 class App < Sinatra::Base
 
+   before do
+      content_type 'application/json'
+   end
+
+
    def initialize
       super
       @mpd = MPD.new
@@ -75,7 +80,7 @@ class App < Sinatra::Base
    # Get the available artists of the songs
    #
    # @return [String] JSON
-   get '/artists' do
+   get '/list/artists' do
       if params[:limit].nil?
          @mpd.list(:artist).to_json
       else
@@ -88,7 +93,7 @@ class App < Sinatra::Base
    # Get the available genres of the songs
    # 
    # @return [String] JSON
-   get '/genres' do
+   get '/list/genres' do
       @mpd.list(:genre).to_json
    end 
 
