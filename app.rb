@@ -27,6 +27,13 @@ class App < Sinatra::Base
 
    end
 
+   def get_status
+      statusHash = @mpd.status
+      # replace song id with the complete song details
+      statusHash[:song] = songs_to_hash(@mpd.queue).reject { |song| song[:id] != statusHash[:song] }.first
+      return statusHash
+   end
+
    # Returns the current songs in the playlist (queue)
    #
    # @return [String] JSON
@@ -37,44 +44,44 @@ class App < Sinatra::Base
    # Clears the current playlist
    get '/clear' do
       @mpd.clear
+      get_status.to_json
    end
 
    # Returns the current state of the music server
    #
    # @return [String] JSON
    get '/status' do
-      statusHash = @mpd.status
-      puts statusHash[:song]
-      # replace song id with the complete song details
-      statusHash[:song] = songs_to_hash(@mpd.queue).reject { |song| song[:id] != statusHash[:song] }.first
-
-      statusHash.to_json
-      
+      get_status.to_json
    end
 
    # Change currently playing song to the next one in the playlist
    get '/next' do
       @mpd.next
+      get_status.to_json
    end
 
    # Change currently playing song to the previous one in the playlist
    get '/previous' do
       @mpd.previous
+      get_status.to_json
    end
   
    # Play the current song in the playlist 
    get '/play' do
       @mpd.play
+      get_status.to_json
    end
 
    # Play song in the playlist having the specified id
    get '/play/:id' do
       @mpd.play params[:id]
+      get_status.to_json
    end
 
    # Remove a song from the playlist having the specified id
    get '/delete/:id' do
       @mpd.delete params[:id]
+      get_status.to_json
    end
 
    # Get the available artists of the songs
@@ -176,6 +183,10 @@ class App < Sinatra::Base
       { add: true,
         strict: ( params[:strict] == 'yes' ? true : false)
       })
+   end
+
+   not_found do
+      'Not found'.to_json
    end
    
 end
