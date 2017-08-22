@@ -29,8 +29,10 @@ class App < Sinatra::Base
 
    def get_status
       statusHash = @mpd.status
+      playlist = songs_to_hash(@mpd.queue)
       # replace song id with the complete song details
-      statusHash[:song] = songs_to_hash(@mpd.queue).reject { |song| song[:id] != statusHash[:song] }.first
+      statusHash[:song] = playlist.reject { |song| song[:id] != statusHash[:song] }.first
+      statusHash[:playlist] = playlist
       return statusHash
    end
 
@@ -38,7 +40,7 @@ class App < Sinatra::Base
    #
    # @return [String] JSON
    get '/' do
-      songs_to_hash(@mpd.queue).to_json
+      get_status.to_json
    end
 
    # Clears the current playlist
@@ -161,6 +163,7 @@ class App < Sinatra::Base
    # Add songs to the playlist where any tag matches the query
    get '/add/any/:query' do
       @mpd.where({any: params[:query]}, {add: true})
+      get_status.to_json
    end
 
    # Add songs to the playlist where artist matches the query
@@ -171,16 +174,19 @@ class App < Sinatra::Base
          { add: true,
            strict: ( params[:strict] == 'yes' ? true : false) 
          })
+      get_status.to_json
    end
 
    # Add songs to the playlist where title matches the query
    get '/add/title/:query' do
       @mpd.where({title: params[:query]}, {add: true})
+      get_status.to_json
    end
 
    # Add songs to the playlist where album matches the query
    get '/add/album/:query' do
       @mpd.where({album: params[:query]}, {add: true})
+      get_status.to_json
    end
 
    # Add songs to the playlist where genre matches the query
@@ -191,6 +197,7 @@ class App < Sinatra::Base
       { add: true,
         strict: ( params[:strict] == 'yes' ? true : false)
       })
+      get_status.to_json
    end
 
    not_found do
