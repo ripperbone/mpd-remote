@@ -115,8 +115,7 @@ class App < Sinatra::Base
    get '/search/artist/:query' do
       
       songs_to_hash(@mpd.where(
-         { artist: params[:query].gsub('<s>', '/')
-         },
+         { artist: params[:query] },
          { strict: ( params[:strict] == 'yes' ? true : false) 
       })).to_json
    end
@@ -124,10 +123,8 @@ class App < Sinatra::Base
    get '/search/genre/:query' do
 
       songs_to_hash(@mpd.where(
-         { genre: params[:query].gsub('<s>', '/')
-         },
-         { strict: ( params[:strict] == 'yes' ? true : false)
-      })).to_json
+         { genre: params[:query] },
+         { strict: ( params[:strict] == 'yes' ? true : false) })).to_json
    end
 
    get '/search/title/:query' do
@@ -150,11 +147,8 @@ class App < Sinatra::Base
 
    get '/add/artist/:query' do
       @mpd.where(
-         { artist: params[:query].gsub('<s>', '/') 
-         },
-         { add: true,
-           strict: ( params[:strict] == 'yes' ? true : false) 
-         })
+         { artist: params[:query] },
+         { add: true, strict: ( params[:strict] == 'yes' ? true : false) })
       get_status.to_json
    end
 
@@ -169,12 +163,8 @@ class App < Sinatra::Base
    end
 
    get '/add/genre/:query' do
-      @mpd.where(
-      { genre: params[:query].gsub('<s>', '/')
-      },
-      { add: true,
-        strict: ( params[:strict] == 'yes' ? true : false)
-      })
+      @mpd.where( { genre: params[:query] },
+         { add: true, strict: ( params[:strict] == 'yes' ? true : false) })
       get_status.to_json
    end
 
