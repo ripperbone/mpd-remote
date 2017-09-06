@@ -36,6 +36,12 @@ class App < Sinatra::Base
       return statusHash
    end
 
+   def return_subset_if_limit(list, params)
+      return (params[:limit].nil? ? list : list.sample(params[:limit].to_i))
+   end
+
+
+
    get '/' do
       get_status.to_json
    end
@@ -87,19 +93,15 @@ class App < Sinatra::Base
 
 
    get '/list/artists' do
-      if params[:limit].nil?
-         @mpd.list(:artist).to_json
-      else
-         @mpd.list(:artist).sample(params[:limit].to_i).to_json
-      end
+      return_subset_if_limit(@mpd.list(:artist), params).to_json
    end
 
    get '/list/genres' do
-      @mpd.list(:genre).to_json
+      return_subset_if_limit(@mpd.list(:genre), params).to_json
    end 
 
    get '/list/albums' do
-      @mpd.list(:album).to_json
+      return_subset_if_limit(@mpd.list(:album), params).to_json
    end
 
 
