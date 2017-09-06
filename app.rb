@@ -36,11 +36,6 @@ class App < Sinatra::Base
       return statusHash
    end
 
-   def return_subset_if_limit(list, params)
-      return (params[:limit].nil? ? list : list.sample(params[:limit].to_i))
-   end
-
-
 
    get '/' do
       get_status.to_json
@@ -93,15 +88,15 @@ class App < Sinatra::Base
 
 
    get '/list/artists' do
-      return_subset_if_limit(@mpd.list(:artist), params).to_json
+      @mpd.list(:artist).to_json
    end
 
    get '/list/genres' do
-      return_subset_if_limit(@mpd.list(:genre), params).to_json
+      @mpd.list(:genre).to_json
    end 
 
    get '/list/albums' do
-      return_subset_if_limit(@mpd.list(:album), params).to_json
+      @mpd.list(:album).to_json
    end
 
 
@@ -113,18 +108,11 @@ class App < Sinatra::Base
    end
   
    get '/search/artist/:query' do
-      
-      songs_to_hash(@mpd.where(
-         { artist: params[:query] },
-         { strict: ( params[:strict] == 'yes' ? true : false) 
-      })).to_json
+      songs_to_hash(@mpd.where({ artist: params[:query] })).to_json
    end
 
    get '/search/genre/:query' do
-
-      songs_to_hash(@mpd.where(
-         { genre: params[:query] },
-         { strict: ( params[:strict] == 'yes' ? true : false) })).to_json
+      songs_to_hash(@mpd.where({ genre: params[:query]})).to_json
    end
 
    get '/search/title/:query' do
@@ -136,9 +124,13 @@ class App < Sinatra::Base
    end
 
 
-
+ 
    # /add/...
 
+   get '/add/random/:size' do
+      @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
+      get_status.to_json
+   end
 
    get '/add/any/:query' do
       @mpd.where({any: params[:query]}, {add: true})
@@ -146,9 +138,7 @@ class App < Sinatra::Base
    end
 
    get '/add/artist/:query' do
-      @mpd.where(
-         { artist: params[:query] },
-         { add: true, strict: ( params[:strict] == 'yes' ? true : false) })
+      @mpd.where({artist: params[:query]}, {add: true})
       get_status.to_json
    end
 
@@ -163,15 +153,14 @@ class App < Sinatra::Base
    end
 
    get '/add/genre/:query' do
-      @mpd.where( { genre: params[:query] },
-         { add: true, strict: ( params[:strict] == 'yes' ? true : false) })
+      @mpd.where({genre: params[:query]}, {add: true})
       get_status.to_json
    end
 
 
 
    not_found do
-      'Not found'.to_json
+      "Not found".to_json
    end
    
 end
