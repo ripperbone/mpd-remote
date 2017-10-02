@@ -41,40 +41,35 @@ class App < Sinatra::Base
       get_status.to_json
    end
 
-   get '/clear' do
-      @mpd.clear
-      get_status.to_json
-   end
-
    get '/status' do
       get_status.to_json
    end
 
-   get '/next' do
-      @mpd.next
-      get_status.to_json
+   post '/clear' do
+      @mpd.clear
    end
 
-   get '/previous' do
+   post '/next' do
+      @mpd.next
+   end
+
+   post '/previous' do
       @mpd.previous
-      get_status.to_json
    end
   
-   get '/play' do
+   post '/play' do
       @mpd.play
-      get_status.to_json
    end
 
-   get '/play/:id' do
+   post '/play/:id' do
       begin 
          @mpd.play params[:id]
       rescue MPD::ServerArgumentError => ex
          halt 400, ex.to_json
       end 
-      get_status.to_json
    end
 
-   get '/delete/:id' do
+   delete '/song/:id' do
       begin 
          @mpd.delete params[:id]
       rescue MPD::ServerArgumentError => ex
@@ -84,75 +79,75 @@ class App < Sinatra::Base
    end
 
 
-   # /list/...
+   # list...
 
 
-   get '/list/artists' do
+   get '/artists' do
       @mpd.list(:artist).to_json
    end
 
-   get '/list/genres' do
+   get '/genres' do
       @mpd.list(:genre).to_json
    end 
 
-   get '/list/albums' do
+   get '/albums' do
       @mpd.list(:album).to_json
    end
 
 
-   # /search/...
+   # search...
 
 
-   get '/search/any/:query' do 
+   get '/songs/any/:query' do 
       songs_to_hash(@mpd.where({any: params[:query]})).to_json
    end
   
-   get '/search/artist/:query' do
+   get '/songs/artist/:query' do
       songs_to_hash(@mpd.where({ artist: params[:query] })).to_json
    end
 
-   get '/search/genre/:query' do
+   get '/songs/genre/:query' do
       songs_to_hash(@mpd.where({ genre: params[:query]})).to_json
    end
 
-   get '/search/title/:query' do
+   get '/songs/title/:query' do
       songs_to_hash(@mpd.where({title: params[:query]})).to_json
    end
   
-   get '/search/album/:query' do
+   get '/songs/album/:query' do
       songs_to_hash(@mpd.where({album: params[:query]})).to_json
    end
 
 
  
-   # /add/...
+   # add...
 
-   get '/add/random/:size' do
+   post '/songs/random/:size' do
       @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
       get_status.to_json
    end
 
-   get '/add/any/:query' do
+   post '/songs/any/:query' do
       @mpd.where({any: params[:query]}, {add: true})
       get_status.to_json
    end
 
-   get '/add/artist/:query' do
+   post '/songs/artist/:query' do
       @mpd.where({artist: params[:query]}, {add: true})
       get_status.to_json
    end
 
-   get '/add/title/:query' do
+   post '/songs/title/:query' do
       @mpd.where({title: params[:query]}, {add: true})
       get_status.to_json
    end
 
-   get '/add/album/:query' do
+   post '/songs/album/:query' do
       @mpd.where({album: params[:query]}, {add: true})
       get_status.to_json
    end
 
-   get '/add/genre/:query' do
+   post '/songs/genre/:query' do
       @mpd.where({genre: params[:query]}, {add: true})
       get_status.to_json
    end
