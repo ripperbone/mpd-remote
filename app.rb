@@ -31,8 +31,8 @@ class App < Sinatra::Base
       statusHash = @mpd.status
       playlist = songs_to_hash(@mpd.queue)
       # replace song id with the complete song details
-      statusHash[:song] = playlist.reject { |song| song[:id] != statusHash[:song] }.first
-      statusHash[:playlist] = playlist
+      statusHash[:currentSong] = playlist.reject { |song| song[:id] != statusHash[:song] }.first
+      statusHash[:currentPlaylist] = playlist
       return statusHash
    end
 
@@ -45,20 +45,24 @@ class App < Sinatra::Base
       get_status.to_json
    end
 
+
    post '/clear' do
       @mpd.clear
    end
 
    post '/next' do
       @mpd.next
+      get_status[:currentSong].to_json
    end
 
    post '/previous' do
       @mpd.previous
+      get_status[:currentSong].to_json
    end
   
    post '/play' do
       @mpd.play
+      get_status[:currentSong].to_json
    end
 
    post '/play/:id' do
