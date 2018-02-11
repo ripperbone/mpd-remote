@@ -50,6 +50,7 @@ class App < Sinatra::Base
          '/previous',
          '/play',
          '/play/:id',
+         '/stop',
          '/remove/:id',
          '/artists',
          '/genres',
@@ -74,11 +75,13 @@ class App < Sinatra::Base
    end
 
    get '/next' do
+      @mpd.play if @mpd.stopped?
       @mpd.next
       get_status[:currentSong].to_json
    end
 
    get '/previous' do
+      @mpd.play if @mpd.stopped?
       @mpd.previous
       get_status[:currentSong].to_json
    end
@@ -94,6 +97,11 @@ class App < Sinatra::Base
       rescue MPD::ServerArgumentError => ex
          halt 400, ex.to_json
       end 
+   end
+
+   get '/stop' do
+      @mpd.stop
+      get_status.to_json
    end
 
    get '/remove/:id' do
@@ -151,31 +159,37 @@ class App < Sinatra::Base
 
    get '/add/songs/random/:size' do
       @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
+      @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/any/:query' do
       @mpd.where({any: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/artist/:query' do
       @mpd.where({artist: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/title/:query' do
       @mpd.where({title: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/album/:query' do
       @mpd.where({album: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/genre/:query' do
       @mpd.where({genre: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
