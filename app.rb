@@ -72,6 +72,7 @@ class App < Sinatra::Base
 
    get '/clear' do
       @mpd.clear
+      @mpd.status.to_json
    end
 
    get '/next' do
@@ -101,7 +102,7 @@ class App < Sinatra::Base
 
    get '/stop' do
       @mpd.stop
-      get_status.to_json
+      @mpd.status.to_json
    end
 
    get '/remove/:id' do
