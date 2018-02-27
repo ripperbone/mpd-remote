@@ -8,6 +8,11 @@ class App < Sinatra::Base
 
    before do
       content_type 'application/json'
+
+      # If user agent is requests (AWS Lambda/Alexa), turn on sound at home
+      if request.env['HTTP_USER_AGENT'].include? 'python-requests'
+         @mpd.enableoutput(0)
+      end
    end
 
 
@@ -197,7 +202,7 @@ class App < Sinatra::Base
 
 
    not_found do
-      "Not found".to_json
+      {"message" => "Not found"}.to_json
    end
    
 end
