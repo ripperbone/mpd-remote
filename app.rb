@@ -47,31 +47,7 @@ class App < Sinatra::Base
    end
 
    get '/status' do
-      statusHash = get_status
-      statusHash[:paths] = [
-         '/status',
-         '/clear',
-         '/next',
-         '/previous',
-         '/play',
-         '/play/:id',
-         '/stop',
-         '/remove/:id',
-         '/artists',
-         '/genres',
-         '/albums',
-         '/songs/any/:query',
-         '/songs/artist/:query',
-         '/songs/genre/:query',
-         '/songs/title/:query',
-         '/songs/album/:query',
-         '/add/songs/random/:size',
-         '/add/songs/any/:query',
-         '/add/songs/artist/:query',
-         '/add/songs/title/:query',
-         '/add/songs/album/:query',
-         '/add/songs/genre/:query' ]
-      statusHash.to_json
+      get_status.to_json
    end
 
 
@@ -135,9 +111,11 @@ class App < Sinatra::Base
       @mpd.list(:album).to_json
    end
 
+   get '/titles' do
+      @mpd.songs.map { |song| song.title }.reject { |title| title.nil? }.to_json
+   end
 
    # search...
-
 
    get '/songs/any/:query' do 
       songs_to_hash(@mpd.where({any: params[:query]})).to_json
