@@ -1,13 +1,9 @@
 #!/bin/bash
 
-
-RACKUP_EXECUTABLE=${HOME}/.gem/ruby/2.3.0/bin/rackup
-
-
 pushd `dirname ${BASH_SOURCE[0]}`
 
 echo "OK now start the server"
-${RACKUP_EXECUTABLE} -o 0.0.0.0 -p 8003
+bundle exec rackup -o 0.0.0.0 -p 8003
 
 #echo "Start in development mode!"
 #rerun 'rackup -o 0.0.0.0 -p 8003'
