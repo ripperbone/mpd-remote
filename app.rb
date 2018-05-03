@@ -67,6 +67,12 @@ class App < Sinatra::Base
       @mpd.previous
       get_status[:currentSong].to_json
    end
+
+   get '/restart' do
+      @mpd.play if @mpd.stopped?
+      @mpd.seek(0)
+      get_status[:currentSong].to_json
+   end
   
    get '/play' do
       @mpd.play
