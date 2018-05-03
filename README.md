@@ -1,4 +1,4 @@
-#MPD Remote
+# MPD Remote
 
 Control your Music Server from a web interface. See [Music Player Daemon](https://www.musicpd.org).
 Uses [ruby-mpd](https://github.com/archSeer/ruby-mpd) and [Sinatra](http://sinatrarb.com/).
