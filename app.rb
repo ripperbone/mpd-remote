@@ -9,6 +9,10 @@ class App < Sinatra::Base
    before do
       content_type 'application/json'
 
+      if !@mpd.connected?
+         @mpd.connect
+      end
+
       # If user agent is requests (AWS Lambda/Alexa), turn on sound at home
       if request.env['HTTP_USER_AGENT'].include? 'python-requests'
          @mpd.enableoutput(0)
@@ -177,12 +181,13 @@ class App < Sinatra::Base
       get_status.to_json
    end
 
-   get '/add/songs/genre/:query' do
-      @mpd.where({genre: params[:query]}, {add: true})
+   get '/add/songs/genre/:query/limit/:limit' do
+      songs = @mpd.where({genre: params[:query].gsub('_', '/')})
+      limit = songs.size > params[:limit].to_i ? params[:limit].to_i : songs.size
+      songs.shuffle[0, limit].each { |song| @mpd.add(song) }
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
-
 
 
    not_found do
