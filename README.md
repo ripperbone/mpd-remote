@@ -9,3 +9,6 @@ Uses [ruby-mpd](https://github.com/archSeer/ruby-mpd) and [Sinatra](http://sinat
 
 - Do `./run` to start serving requests
 
+## Running tests
+
+- Do `bundle exec rspec`
