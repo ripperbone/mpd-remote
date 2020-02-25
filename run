@@ -13,8 +13,8 @@ echo "   BUNDLE: $(which bundle)                    "
 echo "----------------------------------------------"
 
 
-bundle exec rackup -o 0.0.0.0 -p 8003
-
 #echo "Start in development mode!"
 #rerun 'rackup -o 0.0.0.0 -p 8003'
-popd
+#popd
+
+exec bundle exec rackup -o 0.0.0.0 -p 8003
