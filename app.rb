@@ -13,9 +13,10 @@ class App < Sinatra::Base
          @mpd.connect
       end
 
-      # If user agent is requests (AWS Lambda/Alexa), turn on sound at home
+      # If user agent is requests (AWS Lambda/Alexa), turn on sound at home and clear existing playlist
       if request.env['HTTP_USER_AGENT'].include? 'python-requests'
          @mpd.enableoutput(0)
+         @mpd.clear
       end
    end
 
