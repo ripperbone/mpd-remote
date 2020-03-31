@@ -77,18 +77,18 @@ class App < Sinatra::Base
       @mpd.seek(0)
       get_status[:currentSong].to_json
    end
-  
+
    get '/play' do
       @mpd.play
       get_status[:currentSong].to_json
    end
 
    get '/play/:id' do
-      begin 
+      begin
          @mpd.play params[:id]
       rescue MPD::ServerArgumentError => ex
          halt 400, ex.to_json
-      end 
+      end
    end
 
    get '/stop' do
@@ -97,7 +97,7 @@ class App < Sinatra::Base
    end
 
    get '/remove/:id' do
-      begin 
+      begin
          @mpd.delete params[:id]
       rescue MPD::ServerArgumentError => ex
          halt 400, ex.to_json
@@ -115,7 +115,7 @@ class App < Sinatra::Base
 
    get '/genres' do
       @mpd.list(:genre).to_json
-   end 
+   end
 
    get '/albums' do
       @mpd.list(:album).to_json
@@ -127,10 +127,10 @@ class App < Sinatra::Base
 
    # search...
 
-   get '/songs/any/:query' do 
+   get '/songs/any/:query' do
       songs_to_hash(@mpd.where({any: params[:query]})).to_json
    end
-  
+
    get '/songs/artist/:query' do
       songs_to_hash(@mpd.where({ artist: params[:query] })).to_json
    end
@@ -142,13 +142,13 @@ class App < Sinatra::Base
    get '/songs/title/:query' do
       songs_to_hash(@mpd.where({title: params[:query]})).to_json
    end
-  
+
    get '/songs/album/:query' do
       songs_to_hash(@mpd.where({album: params[:query]})).to_json
    end
 
 
- 
+
    # add...
 
    get '/add/songs/random/:size' do
@@ -193,7 +193,7 @@ class App < Sinatra::Base
    not_found do
       {"message" => "Not found"}.to_json
    end
-   
+
 end
 
 
