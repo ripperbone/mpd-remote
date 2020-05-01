@@ -148,6 +148,10 @@ class App < Sinatra::Base
       songs_to_hash(@mpd.where({album: params[:query]})).to_json
    end
 
+   get '/songs/composer/:query' do
+      songs_to_hash(@mpd.where({composer: params[:query]})).to_json
+   end
+
 
 
    # add...
@@ -178,6 +182,12 @@ class App < Sinatra::Base
 
    get '/add/songs/album/:query' do
       @mpd.where({album: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
+      get_status.to_json
+   end
+
+   get '/add/songs/composer/:query' do
+      @mpd.where({composer: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
