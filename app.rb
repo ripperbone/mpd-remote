@@ -12,13 +12,12 @@ class App < Sinatra::Base
       if !@mpd.connected?
          @mpd.connect
       end
-
-      # If user agent is requests (AWS Lambda/Alexa), turn on sound at home and clear existing playlist
-      if request.env['HTTP_USER_AGENT'].include? 'python-requests'
-         @mpd.enableoutput(0)
-         @mpd.clear
-      end
    end
+
+   def alexa_request?
+      request.env.has_key? 'HTTP_USER_AGENT' and request.env['HTTP_USER_AGENT'].include? 'python-requests'
+   end
+
 
 
    def initialize
@@ -157,42 +156,49 @@ class App < Sinatra::Base
    # add...
 
    get '/add/songs/random/:size' do
+      @mpd.clear if alexa_request?
       @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/any/:query' do
+      @mpd.clear if alexa_request?
       @mpd.where({any: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/artist/:query' do
+      @mpd.clear if alexa_request?
       @mpd.where({artist: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/title/:query' do
+      @mpd.clear if alexa_request?
       @mpd.where({title: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/album/:query' do
+      @mpd.clear if alexa_request?
       @mpd.where({album: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/composer/:query' do
+      @mpd.clear if alexa_request?
       @mpd.where({composer: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
 
    get '/add/songs/genre/:query/limit/:limit' do
+      @mpd.clear if alexa_request?
       songs = @mpd.where({genre: params[:query].gsub('_', '/')})
       limit = songs.size > params[:limit].to_i ? params[:limit].to_i : songs.size
       songs.shuffle[0, limit].each { |song| @mpd.add(song) }
