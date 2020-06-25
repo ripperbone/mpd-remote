@@ -5,7 +5,7 @@ Uses [ruby-mpd](https://github.com/archSeer/ruby-mpd) and [Sinatra](http://sinat
 
 - Do `gem install bundler --user` to get bundle
 
-- Do `bundle install --path .bundle` to get all the required gems
+- Do `bundle install` to get all the required gems
 
 - Do `./run` to start serving requests
 
