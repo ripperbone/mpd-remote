@@ -9,6 +9,8 @@ class App < Sinatra::Base
    before do
       content_type 'application/json'
 
+      response.headers['Access-Control-Allow-Origin'] = '*'
+
       if !@mpd.connected?
          @mpd.connect
       end
