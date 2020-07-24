@@ -107,6 +107,15 @@ class App < Sinatra::Base
       get_status.to_json
    end
 
+   get '/volume/:percent' do
+      begin
+         @mpd.volume= params[:percent]
+      rescue MPD::ServerArgumentError => ex
+         halt 400, ex.to_json
+      end
+      get_status.to_json
+   end
+
 
    # list...
 
