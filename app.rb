@@ -146,6 +146,10 @@ class App < Sinatra::Base
       songs_to_hash(@mpd.where({ artist: params[:query] })).to_json
    end
 
+   get '/songs/artist/:artist/title/:title' do
+      songs_to_hash(@mpd.where({ artist: params[:artist], title: params[:title]})).to_json
+   end
+
    get '/songs/genre/:query' do
       songs_to_hash(@mpd.where({ genre: params[:query]})).to_json
    end
@@ -183,6 +187,13 @@ class App < Sinatra::Base
    get '/add/songs/artist/:query' do
       @mpd.clear if alexa_request?
       @mpd.where({artist: params[:query]}, {add: true})
+      @mpd.play if @mpd.stopped?
+      get_status.to_json
+   end
+
+   get '/add/songs/artist/:artist/title/:title' do
+      @mpd.clear if alexa_request?
+      @mpd.where({ artist: params[:artist], title: params[:title]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
