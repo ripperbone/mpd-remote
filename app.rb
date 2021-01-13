@@ -138,10 +138,6 @@ class App < Sinatra::Base
 
    # search...
 
-   get '/songs/any/:query' do
-      songs_to_hash(@mpd.where({any: params[:query]})).to_json
-   end
-
    get '/songs/artist/:query' do
       songs_to_hash(@mpd.where({ artist: params[:query] })).to_json
    end
@@ -173,13 +169,6 @@ class App < Sinatra::Base
    get '/add/songs/random/:size' do
       @mpd.clear if alexa_request?
       @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
-      @mpd.play if @mpd.stopped?
-      get_status.to_json
-   end
-
-   get '/add/songs/any/:query' do
-      @mpd.clear if alexa_request?
-      @mpd.where({any: params[:query]}, {add: true})
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
