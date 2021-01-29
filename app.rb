@@ -136,6 +136,10 @@ class App < Sinatra::Base
       @mpd.songs.map { |song| song.title }.reject { |title| title.nil? }.to_json
    end
 
+   get '/playlists' do
+      @mpd.playlists.map { |playlist| playlist.name }.to_json
+   end
+
    # search...
 
    get '/songs/artist/:query' do
@@ -160,6 +164,10 @@ class App < Sinatra::Base
 
    get '/songs/composer/:query' do
       songs_to_hash(@mpd.where({composer: params[:query]})).to_json
+   end
+
+   get '/songs/playlist/:query' do
+      @mpd.playlists.select { |playlist| playlist.name.include? params[:query] }.map { |playlist| { :playlist => playlist.name, :songs  => songs_to_hash(playlist.songs)} }.to_json
    end
 
 
@@ -217,6 +225,12 @@ class App < Sinatra::Base
       get_status.to_json
    end
 
+   get '/add/songs/playlist/:query' do
+      @mpd.clear if alexa_request?
+      @mpd.playlists.select { |playlist| playlist.name.include? params[:query] }.each { |playlist| playlist.load }
+      @mpd.play if @mpd.stopped?
+      get_status.to_json
+   end
 
    not_found do
       {"message" => "Not found"}.to_json
