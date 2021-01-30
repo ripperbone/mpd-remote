@@ -11,4 +11,18 @@ Uses [ruby-mpd](https://github.com/archSeer/ruby-mpd) and [Sinatra](http://sinat
 
 ## Running tests
 
-- Do `bundle exec rspec`
+- run `docker build -t mpd-remote-buildenv:latest .` to create a docker image.
+
+- Start docker container (run from this directory)
+   `docker run -it -v ${PWD}:/workspace mpd-remote-buildenv:latest /bin/bash`
+
+- in the docker container, start MPD:
+   `mpd`
+
+- `cd /workspace`
+
+- `bundle config set --local path vendor/bundle`
+
+- `bundle install`
+
+- `bundle exec rspec`

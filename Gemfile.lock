@@ -2,6 +2,8 @@ GEM
   remote: https://rubygems.org/
   specs:
     diff-lcs (1.4.2)
+    mp3info (0.8.5)
+      ruby-mp3info (>= 0.8.5)
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     rack (2.2.3)
@@ -22,6 +24,7 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
     rspec-support (3.9.3)
+    ruby-mp3info (0.8.10)
     ruby-mpd (0.3.3)
     ruby2_keywords (0.0.2)
     sinatra (2.0.8.1)
@@ -35,6 +38,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  mp3info
   rack
   rack-test
   rspec
