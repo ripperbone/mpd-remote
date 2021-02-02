@@ -19,17 +19,23 @@ RSpec.describe 'MPD web interface' do
 
          # create an empty mp3 file
          [{:file_name => "03. What's Up.mp3", :artist => "4 Non Blondes", :title => "What's Up?", :album => "Bigger, Better, Faster, More !", :genre => "Pop"},
-         {:file_name => "03. Call Your Girlfriend.mp3", :artist => "Robyn", :title => "Call Your Girlfriend", :album => "Body Talk Pt. 3", :genre => "Dance"}
+         {:file_name => "03. Call Your Girlfriend.mp3", :artist => "Robyn", :title => "Call Your Girlfriend", :album => "Body Talk Pt. 3", :genre => "Dance"},
+         {:file_name => "04. Wintersong.mp3", :artist => "Sarah McLachlan", :title => "Wintersong", :album => "Wintersong", :genre => "Pop"},
+         {:file_name => "11. In a Bleak Mid Winter.mp3", :artist => "Sarah McLachlan", :title => "In a Bleak Mid Winter", :album => "Wintersong", :genre => "Pop"}
          ].each do |file_info|
             make_test_audio_file(file_info)
             expect(File).to exist(File.join(music_path, file_info[:file_name]))
          end
-
-         @mpd = MPD.new
-         @mpd.connect
-         @mpd.update # update library with test music
-
       end
+
+      Dir.chdir('/var/lib/mpd/playlists') do
+         make_test_playlist_file("holiday.m3u", ["04. Wintersong.mp3", "11. In a Bleak Mid Winter.mp3"])
+      end
+
+      @mpd = MPD.new
+      @mpd.connect
+      @mpd.update # update library with test music
+
    end
 
    before(:each) do
@@ -108,6 +114,32 @@ RSpec.describe 'MPD web interface' do
       expect(last_response).to be_ok
       expect(@mpd.queue.size).to be(0)
 
+   end
+
+   it 'returns the list of playlists' do
+      get '/playlists'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include("holiday")
+   end
+
+   it 'returns the list of songs in the playlist' do
+      get '/songs/playlist/holiday'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include(include("playlist" => "holiday"))
+      expect(JSON.parse(last_response.body)).to include(include("songs"))
+      expect(JSON.parse(last_response.body).find { |playlist| playlist["playlist"].eql? "holiday" }["songs"]).to include(include("title" => "In a Bleak Mid Winter"))
+      expect(JSON.parse(last_response.body).find { |playlist| playlist["playlist"].eql? "holiday" }["songs"]).to include(include("title" => "Wintersong"))
+      expect(@mpd.queue.size).to be(0) # songs should not be added
+   end
+
+   it 'adds the songs from the playlist to the queue playlist' do
+      expect(@mpd.status[:state]).to eql(:stop)
+      get '/add/songs/playlist/holiday'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include("currentPlaylist")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].size).to be(2)
+      expect(@mpd.queue.size).to be(2)
+      expect(@mpd.status[:state]).to eql(:play)
    end
 
    it 'returns not found if the URI is not defined' do

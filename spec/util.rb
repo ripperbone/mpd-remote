@@ -10,3 +10,7 @@ def make_test_audio_file(file_info)
       file.tag.genre_s = file_info[:genre]
    end
 end
+
+def make_test_playlist_file(playlist_name, songs)
+   File.open(playlist_name, 'w') { |file| file.write(songs.join("\n")) }
+end
