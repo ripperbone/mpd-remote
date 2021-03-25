@@ -23,13 +23,14 @@ RSpec.describe 'MPD web interface' do
          {:file_name => "04. Wintersong.mp3", :artist => "Sarah McLachlan", :title => "Wintersong", :album => "Wintersong", :genre => "Pop"},
          {:file_name => "11. In a Bleak Mid Winter.mp3", :artist => "Sarah McLachlan", :title => "In a Bleak Mid Winter", :album => "Wintersong", :genre => "Pop"}
          ].each do |file_info|
-            make_test_audio_file(file_info)
+            create_audio_file(file_info)
             expect(File).to exist(File.join(music_path, file_info[:file_name]))
          end
       end
 
       Dir.chdir('/var/lib/mpd/playlists') do
-         make_test_playlist_file("holiday.m3u", ["04. Wintersong.mp3", "11. In a Bleak Mid Winter.mp3"])
+         # create a playlist file
+         File.open("holiday.m3u", "w") { |file| file.write(["04. Wintersong.mp3", "11. In a Bleak Mid Winter.mp3"].join("\n")) }
       end
 
       @mpd = MPD.new
