@@ -47,6 +47,11 @@ class App < Sinatra::Base
       return statusHash
    end
 
+   def is_genre?(song, genre)
+      return false if song.genre.nil?
+      return song.genre.is_a?(Array) ? song.genre.any? { |song_genre| song_genre.downcase.eql?(genre.downcase) } : song.genre.downcase.eql?(genre.downcase)
+   end
+
 
    get '/' do
       get_status.to_json
@@ -177,6 +182,17 @@ class App < Sinatra::Base
    get '/add/songs/random/:size' do
       @mpd.clear if alexa_request?
       @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
+      @mpd.play if @mpd.stopped?
+      get_status.to_json
+   end
+
+   # Add random songs but exclude some genres. @mpd.songs does not always contain genre information
+   # so add songs to the queue first and then remove the songs we do not want to keep in the playlist.
+   #
+   get '/add/songs/party' do
+      @mpd.clear
+      @mpd.songs.map { |song| song.file }.reject { |song| song.nil? }.sample(30).each { |song| @mpd.add(song) }
+      @mpd.queue.select { |song| ['classical', 'jazz', 'holiday', 'comedy'].any? { |genre| is_genre?(song, genre) }}.each { |song| @mpd.delete({:id => song.id}) }
       @mpd.play if @mpd.stopped?
       get_status.to_json
    end
