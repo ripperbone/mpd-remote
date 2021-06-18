@@ -67,20 +67,30 @@ class App < Sinatra::Base
       @mpd.status.to_json
    end
 
+   get '/pause' do
+      if @mpd.playing?
+         @mpd.pause=true
+      else
+         # resume playing if already paused or stopped
+         @mpd.play
+      end
+      get_status.to_json
+   end
+
    get '/next' do
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       @mpd.next
       get_status.to_json
    end
 
    get '/previous' do
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       @mpd.previous
       get_status.to_json
    end
 
    get '/restart' do
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       @mpd.seek(0)
       get_status[:currentSong].to_json
    end
@@ -182,7 +192,7 @@ class App < Sinatra::Base
    get '/add/songs/random/:size' do
       @mpd.clear if alexa_request?
       @mpd.songs.map{ |song| song.file}.reject{ |song| song.nil? }.sample(params[:size].to_i).each{ |song| @mpd.add(song) }
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
@@ -193,42 +203,42 @@ class App < Sinatra::Base
       @mpd.clear
       @mpd.songs.map { |song| song.file }.reject { |song| song.nil? }.sample(30).each { |song| @mpd.add(song) }
       @mpd.queue.select { |song| ['classical', 'jazz', 'holiday', 'comedy'].any? { |genre| is_genre?(song, genre) }}.each { |song| @mpd.delete({:id => song.id}) }
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
    get '/add/songs/artist/:query' do
       @mpd.clear if alexa_request?
       @mpd.where({artist: params[:query]}, {add: true})
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
    get '/add/songs/artist/:artist/title/:title' do
       @mpd.clear if alexa_request?
       @mpd.where({ artist: params[:artist], title: params[:title]}, {add: true})
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
    get '/add/songs/title/:query' do
       @mpd.clear if alexa_request?
       @mpd.where({title: params[:query]}, {add: true})
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
    get '/add/songs/album/:query' do
       @mpd.clear if alexa_request?
       @mpd.where({album: params[:query]}, {add: true})
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
    get '/add/songs/composer/:query' do
       @mpd.clear if alexa_request?
       @mpd.where({composer: params[:query]}, {add: true})
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
@@ -237,14 +247,14 @@ class App < Sinatra::Base
       songs = @mpd.where({genre: params[:query].gsub('_', '/')})
       limit = songs.size > params[:limit].to_i ? params[:limit].to_i : songs.size
       songs.shuffle[0, limit].each { |song| @mpd.add(song) }
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
    get '/add/songs/playlist/:query' do
       @mpd.clear if alexa_request?
       @mpd.playlists.select { |playlist| playlist.name.include? params[:query] }.each { |playlist| playlist.load }
-      @mpd.play if @mpd.stopped?
+      @mpd.play unless @mpd.playing?
       get_status.to_json
    end
 
