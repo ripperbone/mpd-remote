@@ -117,6 +117,31 @@ RSpec.describe 'MPD web interface' do
 
    end
 
+   it 'pauses and resumes playback' do
+      @mpd.where({title: "Call Your Girlfriend"}, {add: true})
+      expect(@mpd.paused?).to be(false)
+      expect(@mpd.stopped?).to be(true)
+      expect(@mpd.playing?).to be(false)
+
+      # stopped -> playing
+      get '/pause'
+      expect(@mpd.paused?).to be(false)
+      expect(@mpd.stopped?).to be(false)
+      expect(@mpd.playing?).to be(true)
+
+      # playing -> paused
+      get '/pause'
+      expect(@mpd.paused?).to be(true)
+      expect(@mpd.stopped?).to be(false)
+      expect(@mpd.playing?).to be(false)
+
+      # paused -> playing
+      get '/pause'
+      expect(@mpd.paused?).to be(false)
+      expect(@mpd.stopped?).to be(false)
+      expect(@mpd.playing?).to be(true)
+   end
+
    it 'returns the list of playlists' do
       get '/playlists'
       expect(last_response).to be_ok
