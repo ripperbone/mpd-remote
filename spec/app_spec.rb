@@ -19,6 +19,11 @@ RSpec.describe 'MPD web interface' do
 
          # create an empty mp3 file
          [{:file_name => "03. What's Up.mp3", :artist => "4 Non Blondes", :title => "What's Up?", :album => "Bigger, Better, Faster, More !", :genre => "Pop"},
+         {:file_name => "01. Daydreamer.mp3", :artist => "Adele", :title => "Daydreamer", :album => "19", :genre => "Pop"},
+         {:file_name => "02. Best For Last.mp3", :artist => "Adele", :title => "Best For Last", :album => "19", :genre => "Pop"},
+         {:file_name => "03. Chasing Pavements.mp3", :artist => "Adele", :title => "Chasing Pavements", :album => "19", :genre => "Pop"},
+         {:file_name => "01. Hello.mp3", :artist => "Adele", :title => "Hello", :album => "25", :genre => "Pop"},
+         {:file_name => "06. Can I Get It.mp3", :artist => "Adele", :title => "Can I Get It", :album => "30", :genre => "Pop"},
          {:file_name => "03. Call Your Girlfriend.mp3", :artist => "Robyn", :title => "Call Your Girlfriend", :album => "Body Talk Pt. 3", :genre => "Dance"},
          {:file_name => "04. Wintersong.mp3", :artist => "Sarah McLachlan", :title => "Wintersong", :album => "Wintersong", :genre => "Pop"},
          {:file_name => "11. In a Bleak Mid Winter.mp3", :artist => "Sarah McLachlan", :title => "In a Bleak Mid Winter", :album => "Wintersong", :genre => "Pop"}
@@ -48,15 +53,15 @@ RSpec.describe 'MPD web interface' do
    end
 
    it 'adds a song to the current playlist by title' do
-      expect(@mpd.queue.size).to be(0)
+      expect(@mpd.queue.size).to eq(0)
       get '/add/songs/title/what%27s%20up'
       expect(last_response).to be_ok
-      expect(@mpd.queue.size).to be(1)
+      expect(@mpd.queue.size).to eq(1)
       expect(JSON.parse(last_response.body)).to include('state' => 'play')
       expect(JSON.parse(last_response.body)).to include('currentSong')
       expect(JSON.parse(last_response.body)['currentSong']).to include('title' => 'What\'s Up?')
       expect(JSON.parse(last_response.body)).to include('currentPlaylist')
-      expect(JSON.parse(last_response.body)['currentPlaylist'].size).to be(1)
+      expect(JSON.parse(last_response.body)['currentPlaylist'].size).to eq(1)
    end
 
 
@@ -109,11 +114,11 @@ RSpec.describe 'MPD web interface' do
 
    it 'clears the playlist' do
       @mpd.where({title: "What's Up?"}, {add: true})
-      expect(@mpd.queue.size).to be(1)
+      expect(@mpd.queue.size).to eq(1)
 
       get '/clear'
       expect(last_response).to be_ok
-      expect(@mpd.queue.size).to be(0)
+      expect(@mpd.queue.size).to eq(0)
 
    end
 
@@ -155,7 +160,7 @@ RSpec.describe 'MPD web interface' do
       expect(JSON.parse(last_response.body)).to include(include("songs"))
       expect(JSON.parse(last_response.body).find { |playlist| playlist["playlist"].eql? "holiday" }["songs"]).to include(include("title" => "In a Bleak Mid Winter"))
       expect(JSON.parse(last_response.body).find { |playlist| playlist["playlist"].eql? "holiday" }["songs"]).to include(include("title" => "Wintersong"))
-      expect(@mpd.queue.size).to be(0) # songs should not be added
+      expect(@mpd.queue.size).to eq(0) # songs should not be added
    end
 
    it 'adds the songs from the playlist to the queue playlist' do
@@ -163,14 +168,40 @@ RSpec.describe 'MPD web interface' do
       get '/add/songs/playlist/holiday'
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to include("currentPlaylist")
-      expect(JSON.parse(last_response.body)["currentPlaylist"].size).to be(2)
-      expect(@mpd.queue.size).to be(2)
+      expect(JSON.parse(last_response.body)["currentPlaylist"].size).to eq(2)
+      expect(@mpd.queue.size).to eq(2)
       expect(@mpd.status[:state]).to eql(:play)
+   end
+
+   it 'adds the songs for a request including artist and title' do
+      get '/add/songs/artist/adele/title/hello'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include("currentPlaylist")
+      expect(JSON.parse(last_response.body)["currentPlaylist"][0]["title"]).to eq("Hello")
+      expect(JSON.parse(last_response.body)["currentPlaylist"][0]["artist"]).to eq("Adele")
+      expect(@mpd.queue.size).to eq(1)
+   end
+
+   it 'adds the songs for a request including artist and album' do
+      get '/add/songs/artist/adele/album/19'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include("currentPlaylist")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["album"] }).to all(eq("19"))
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["artist"] }).to all(eq("Adele"))
+   end
+
+   it 'adds all songs of an artist when the request includes only artist' do
+      get '/add/songs/artist/adele'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include("currentPlaylist")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["artist"] }).to all(eq("Adele"))
+      expect(JSON.parse(last_response.body)["currentPlaylist"]).to include(
+         include("album" => "19"), include("album" => "25"), include("album" => "30"))
    end
 
    it 'returns not found if the URI is not defined' do
       get '/notexpected'
-      expect(last_response.status).to be(404)
+      expect(last_response.status).to eq(404)
       expect(JSON.parse(last_response.body)).to include('message' => 'Not found')
       expect(last_response.content_type).to eq('application/json')
    end
