@@ -4,10 +4,10 @@ GEM
     diff-lcs (1.4.2)
     mp3info (0.8.5)
       ruby-mp3info (>= 0.8.5)
-    mustermann (1.1.1)
+    mustermann (2.0.2)
       ruby2_keywords (~> 0.0.1)
     rack (2.2.3.1)
-    rack-protection (2.2.0)
+    rack-protection (2.2.3)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -27,12 +27,12 @@ GEM
     ruby-mp3info (0.8.10)
     ruby-mpd (0.3.3)
     ruby2_keywords (0.0.5)
-    sinatra (2.2.0)
-      mustermann (~> 1.0)
+    sinatra (2.2.3)
+      mustermann (~> 2.0)
       rack (~> 2.2)
-      rack-protection (= 2.2.0)
+      rack-protection (= 2.2.3)
       tilt (~> 2.0)
-    tilt (2.0.10)
+    tilt (2.0.11)
 
 PLATFORMS
   ruby
