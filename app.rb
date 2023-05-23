@@ -67,6 +67,11 @@ class App < Sinatra::Base
       @mpd.status.to_json
    end
 
+   get '/crop' do
+      @mpd.queue.map { |song| song.id }.reject { |id| id.eql? @mpd.status[:songid] }.each { |id| @mpd.delete({id: id}) }
+      get_status.to_json
+   end
+
    get '/pause' do
       if @mpd.playing?
          @mpd.pause=true
@@ -204,7 +209,7 @@ class App < Sinatra::Base
    # so add songs to the queue first and then remove the songs we do not want to keep in the playlist.
    #
    get '/add/songs/party' do
-      @mpd.clear
+      @mpd.clear if alexa_request?
       @mpd.songs.map { |song| song.file }.reject { |song| song.nil? }.sample(30).each { |song| @mpd.add(song) }
       @mpd.queue.select { |song| ['classical', 'jazz', 'holiday', 'comedy'].any? { |genre| is_genre?(song, genre) }}.each { |song| @mpd.delete({:id => song.id}) }
       @mpd.play unless @mpd.playing?
