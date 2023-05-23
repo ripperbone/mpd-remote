@@ -122,6 +122,18 @@ RSpec.describe 'MPD web interface' do
 
    end
 
+   it 'clears the playlist except for the current song' do
+      @mpd.where({artist: "Adele"}, {add: true})
+      expect(@mpd.queue.size).to eq(5)
+      @mpd.play(2) # jump to middle of queue
+      current_song_id = @mpd.status[:songid]
+
+      get '/crop'
+      expect(last_response).to be_ok
+      expect(@mpd.queue.size).to eq(1)
+      expect(@mpd.status[:songid]).to eq(current_song_id) #current song is still the same
+   end
+
    it 'pauses and resumes playback' do
       @mpd.where({title: "Call Your Girlfriend"}, {add: true})
       expect(@mpd.paused?).to be(false)
@@ -145,6 +157,28 @@ RSpec.describe 'MPD web interface' do
       expect(@mpd.paused?).to be(false)
       expect(@mpd.stopped?).to be(false)
       expect(@mpd.playing?).to be(true)
+   end
+
+   it 'removes a song from the playlist' do
+      @mpd.where({artist: "Adele"}, {add: true})
+      expect(@mpd.queue.size).to eq(5)
+      get '/status'
+      expect(last_response).to be_ok
+      playlist = JSON.parse(last_response.body)["currentPlaylist"]
+
+      get '/remove/2'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)["currentPlaylist"].size).to be(4)
+      expect(JSON.parse(last_response.body)["currentPlaylist"]).to_not include(playlist[2])
+
+   end
+
+   it 'returns a bad request when removing a song that does not exist' do
+      @mpd.where({artist: "Adele"}, {add: true})
+      expect(@mpd.queue.size).to eq(5)
+      get '/remove/9'
+      expect(last_response.status).to be(400)
+      expect(@mpd.queue.size).to eq(5)
    end
 
    it 'returns the list of playlists' do
@@ -171,6 +205,18 @@ RSpec.describe 'MPD web interface' do
       expect(JSON.parse(last_response.body)["currentPlaylist"].size).to eq(2)
       expect(@mpd.queue.size).to eq(2)
       expect(@mpd.status[:state]).to eql(:play)
+   end
+
+   it 'adds an assortment of songs to the queue but excludes some genres' do
+      expect(@mpd.queue.size).to eq(0) # songs should not be added
+      get '/add/songs/party'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["genre"].downcase }).to include("pop")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["genre"].downcase }).to include("dance")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["genre"].downcase }).not_to include("holiday")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["genre"].downcase }).not_to include("classical")
+      expect(JSON.parse(last_response.body)["currentPlaylist"].map { |song| song["genre"].downcase }).not_to include("comedy")
+
    end
 
    it 'adds the songs for a request including artist and title' do
