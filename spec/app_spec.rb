@@ -197,6 +197,17 @@ RSpec.describe 'MPD web interface' do
       expect(@mpd.queue.size).to eq(0) # songs should not be added
    end
 
+   it 'returns the list of songs matching the artist' do
+      get '/songs/artist/adel'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body).size).to eq(5) # array of songs matching
+
+      get '/songs/artist/adel?exact=yes'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body).size).to eq(0) # array of songs matching
+
+   end
+
    it 'adds the songs from the playlist to the queue playlist' do
       expect(@mpd.status[:state]).to eql(:stop)
       get '/add/songs/playlist/holiday'
