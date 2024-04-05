@@ -163,7 +163,9 @@ class App < Sinatra::Base
    # search...
 
    get '/songs/artist/:query' do
-      songs_to_hash(@mpd.where({ artist: params[:query] })).to_json
+      songs_to_hash(
+         @mpd.where({ artist: params[:query] })
+            .reject { |song| params[:exact].eql?('yes') && !song.artist.downcase.eql?(params[:query].downcase) }).to_json
    end
 
    get '/songs/artist/:artist/title/:title' do

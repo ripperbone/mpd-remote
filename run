@@ -14,7 +14,7 @@ echo "----------------------------------------------"
 
 
 #echo "Start in development mode!"
-#rerun 'rackup -o 0.0.0.0 -p 8003'
+#rerun 'bundle exec rackup -o 0.0.0.0 -p 8003'
 #popd
 
 exec bundle exec rackup -o 0.0.0.0 -p 8003
