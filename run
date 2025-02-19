@@ -17,4 +17,4 @@ echo "----------------------------------------------"
 #rerun 'bundle exec puma -p 8003'
 #popd
 
-exec bundle exec puma -p 8003 -e production
+exec bundle exec puma --log-requests -p 8003 -e production
