@@ -17,7 +17,7 @@ class App < Sinatra::Base
    end
 
    def alexa_request?
-      request.env.has_key? 'HTTP_USER_AGENT' and request.env['HTTP_USER_AGENT'].include? 'python-requests'
+      request.env.has_key? 'HTTP_ALEXA_REQUEST'
    end
 
 
