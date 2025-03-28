@@ -1,9 +1,6 @@
 pipeline {
    agent {
-      docker { 
-         image 'mpd-remote-buildenv'
-         reuseNode true
-      }
+      dockerfile true
    }
    
    stages {
