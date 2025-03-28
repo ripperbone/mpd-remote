@@ -1,12 +1,14 @@
 FROM ubuntu:latest
 
+ARG JENKINS_UID
+
 USER root
 
 RUN apt update && apt install --no-install-recommends \
-   mpd mpc ruby wget vim ffmpeg sudo -y
+   mpd mpc ruby ruby-dev build-essential wget vim ffmpeg sudo git -y
 
 
-RUN useradd --home-dir /var/lib/jenkins --no-create-home -u 135 jenkins
+RUN useradd --home-dir /var/lib/jenkins --no-create-home -u ${JENKINS_UID} jenkins
 
 RUN mkdir -p /run/mpd
 RUN chown mpd:audio /run/mpd

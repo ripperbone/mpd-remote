@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 gem 'sinatra'
-gem 'ruby-mpd'
+gem 'ruby-mpd', git: 'https://github.com/archseer/ruby-mpd', branch: 'master'
 gem 'puma'
 
 group :test do
