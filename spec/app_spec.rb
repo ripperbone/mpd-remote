@@ -263,5 +263,16 @@ RSpec.describe 'MPD web interface' do
       expect(last_response.content_type).to eq('application/json')
    end
 
+   it 'returns the stats' do
+      get '/stats'
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to include("songs")
+      expect(JSON.parse(last_response.body)["songs"]).to eq(9)
+      expect(JSON.parse(last_response.body)).to include("db_update")
+      expect(DateTime.parse(JSON.parse(last_response.body)["db_update"])).to be > (DateTime.now - (5 * 60))
+      expect(JSON.parse(last_response.body)).to include("up_since")
+      expect(DateTime.parse(JSON.parse(last_response.body)["up_since"])).to be > (DateTime.now - (5 * 60))
+   end
+
 
 end

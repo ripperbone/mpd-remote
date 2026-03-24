@@ -136,6 +136,11 @@ class App < Sinatra::Base
       get_status.to_json
    end
 
+   get '/stats' do
+      stats = @mpd.stats
+      stats[:up_since] = Time.now - stats[:uptime]
+      stats.to_json
+   end
 
    # list...
 
