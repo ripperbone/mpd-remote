@@ -28,6 +28,8 @@ pipeline {
             reportDir: 'reports',
             reportFiles: 'rspec_results.html',
             reportName: 'Reports'])
+
+         emailext(to: '$DEFAULT_RECIPIENTS', subject: "${env.JOB_NAME} build ${env.BUILD_NUMBER} finished - ${currentBuild.currentResult}", body: '''<pre>\${BUILD_LOG, maxLines=500, escapeHtml=false}</pre>''', mimeType: 'text/html')
       }
    }
 }
